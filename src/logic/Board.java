@@ -46,8 +46,22 @@ public class Board {
 	private ArrayList<String> kingPaths = new ArrayList<String>(); //для отката ходов назад
 	
 	public Board() throws IOException{
-		nextMoveColor = DEFAULT_FIRST_MOVE_COLOR;
-		startNewGame();
+		try {
+			nextMoveColor = DEFAULT_FIRST_MOVE_COLOR;
+			startNewGame();
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	public Board(String filename) throws IOException{
+		try {
+			nextMoveColor = DEFAULT_FIRST_MOVE_COLOR;
+			startNewGame(filename);
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	public Board(CheckerColor color, String player1, String player2) throws IOException{
@@ -75,6 +89,12 @@ public class Board {
 	public ArrayList<String> initializePossibleMoves() {
 		possibleMoves = possibleMovesClass.possibleMove(nextMoveColor, board);
 		return possibleMoves;
+	}
+	
+	public Cell[][] getBoard(){
+		if(board == null) return null;
+		
+		return board;
 	}
 	
 	/*для ИИ.
@@ -159,6 +179,11 @@ public class Board {
 		board = fMaster.loadBoardFromTextFile("/home/denis/eclipse-workspace/Checkers/src/logic/BasicCheckersPosition.txt");
 	}
 	
+	private void startNewGame(String filename) throws IOException{
+		fMaster = new FileMaster(player1, player2);
+		board = fMaster.loadBoardFromTextFile(filename);
+	}
+	
 	public GameResult isWin() {
 		try {
 			if(possibleMovesClass.possibleMove(CheckerColor.White, board).isEmpty() 
@@ -237,16 +262,17 @@ public class Board {
 			if(deleteCheckers.length() != 0) deleteCheckers.append(',');
 			
 			boolean flag = isCorrectMove(new StringBuffer(prevChecker).append(currentChecker));
+			
 			if(flag) 
 				deleteCheckers.append(makeMove(new StringBuffer(prevChecker).append(currentChecker)));
 			else return new ArrayList<String>();
-			
-			
+			//return new ArrayList<String>();
 			prevChecker = new StringBuffer(currentChecker);
 			prevChecker.append(':');
-		}
+			
 		
-		fMaster.writeMove(movePath, deleteCheckers.toString());
+		}
+		if(this.fMaster != null) fMaster.writeMove(movePath, deleteCheckers.toString());
 		nextMoveColor = Cell.enemyColor(nextMoveColor);
 		possibleMoves = possibleMovesClass.possibleMove(nextMoveColor, board);
 		
@@ -514,7 +540,22 @@ public class Board {
 				&& vertical >= 0 && vertical < BOARD_SIZE
 				&& horizontal % 2 == vertical % 2);
 	}
-		
+	
+	public boolean equals(Object o) {
+		if(o instanceof Board) {
+			Board second = (Board)o;
+			for(int i = 0; i < BOARD_SIZE; i++) {
+				for(int j = 0; j < BOARD_SIZE; j++) {
+					if(!board[i][j].equals(second.board[i][j])) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
 		for(int i = 0; i < BOARD_SIZE; i++) {
@@ -526,7 +567,4 @@ public class Board {
 		return buf.toString();
 	}
 	
-	public void loadBoardFromTextFile(String filename) throws IOException {
-		board = fMaster.loadBoardFromTextFile(filename);	
-	}
 }

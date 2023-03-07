@@ -3,6 +3,8 @@ package logic;
 import logic.*;
 import io.*;
 import ui.*;
+
+/*Класс - одна клетка на шахматной доске*/
 public class Cell {
 	private CheckerType type;
 	private CheckerColor color;
@@ -86,6 +88,18 @@ public class Cell {
 		buf.append(vertical);
 		buf.append(horizontal);
 		return buf.toString();
+	}
+	
+	public boolean equals(Object o) {
+		if(o instanceof Cell) {
+			Cell second = (Cell)o;
+			if(this.color == second.color && this.type == second.type
+					&& this.horizontal == second.horizontal && this.vertical == second.vertical) {
+				return true;
+			}
+			else return false;
+		}
+		return false;
 	}
 	
 	public String toString() {

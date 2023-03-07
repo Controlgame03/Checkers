@@ -66,7 +66,7 @@ public class FileMaster{
 	}
 	
 	private FileWriter createNewFile() throws IOException {
-		String fileDirectory = "/home/denis/eclipse-workspace/Checkers/games/";
+		String fileDirectory = System.getProperty("user.dir") + "/src/games/";
 		FileReader reader = new FileReader(fileDirectory + "info.txt");
 		int gameNumber;
 		StringBuffer number = new StringBuffer();
@@ -119,7 +119,8 @@ public class FileMaster{
 			if(symbol == ',' || symbol == ' ' || symbol == '\n') {
 				symbol = fileRead.read();
 				continue;
-			}	
+			}
+			
 			CheckerType type = CheckerType.NoChecker;
 			vertical = (char)(symbol);
 			horizontal = (int)((symbol = fileRead.read()) - '0') - 1;
@@ -131,6 +132,11 @@ public class FileMaster{
 			else {
 				verticalInt = ((int)vertical - (int)'A');
 				type = CheckerType.King;
+			}
+			
+			if(verticalInt < 0 || verticalInt > BOARD_SIZE
+					|| horizontal < 0 || horizontal > BOARD_SIZE) {
+				return null;
 			}
 			
 			board[horizontal][verticalInt].setColor(CheckerColor.White);
@@ -165,6 +171,12 @@ public class FileMaster{
 				verticalInt = ((int)vertical - (int)'A');
 				type = CheckerType.King;
 			}
+			
+			if(verticalInt < 0 || verticalInt >= BOARD_SIZE
+					|| horizontal < 0 || horizontal >= BOARD_SIZE) {
+				return null;
+			}
+			
 			board[horizontal][verticalInt].setColor(CheckerColor.Black);
 			board[horizontal][verticalInt].setType(type);
 			currentSaveFile.write(vertical);

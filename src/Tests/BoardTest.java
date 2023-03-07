@@ -1,64 +1,147 @@
 package Tests;
 
-import logic.*;
-import io.*;
-import ui.*;
+import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import org.junit.jupiter.api.*;
 
-import java.util.*;
-import java.lang.Math;
+import logic.Board;
+import logic.CheckerColor;
+import logic.Board.GameResult;
 
-import MachineIntellegence.MachineIntellegence;
-
-public class BoardTest {
+class BoardTest {
 	
-	private static final int TEST_NUMBER = 100;
+	Board startBoard;
+	Board blackWinBoard;
+	Board whiteWinBoard;
+	Board classicBoard;
 	
-	private static void computerVsRandom() {
-		int b = 0;
-		int w = 0;
+	private static final int BOARD_NUMBER = 4;
+	
+	final CheckerColor white = CheckerColor.White;
+	final CheckerColor black = CheckerColor.Black;
+	final String fileDirectory = System.getProperty("user.dir") + "/src/Tests/";
+	
+	@BeforeEach                                         
+    void setUp(){
+		
 		try {
-			for(int i = 0; i < TEST_NUMBER; i++) {
-				Board game = new Board();
-				ArrayList<String> pos = game.initializePossibleMoves();
-				while(!pos.isEmpty()) {
-					String st = pos.get((int) (Math.random() * (pos.size() - 1)));
-					pos = new ArrayList<String>(game.move(st));
-					if(pos.isEmpty()) break;
-					st = MachineIntellegence.move(game);
-					pos = new ArrayList<String>(game.move(st));
-					if(pos.isEmpty()) break;
-				}
-				if(game.isWin().equals(Board.GameResult.BlackWin)) {	
-					b++;
-				}
-				else if(game.isWin().equals(Board.GameResult.WhiteWin)){
-					w++;
-				}
-			}
-			System.out.print("White win = ");
-			System.out.println(w);
-			System.out.print("Black win = ");
-			System.out.println(b);
+			startBoard = new Board(fileDirectory + "StartPosition.txt");
 			
-			System.out.print("true: ");
-			System.out.println(b + w);
-			System.out.print("false: ");
-			System.out.println(TEST_NUMBER - b - w);
+			blackWinBoard = new Board(fileDirectory + "PositionBlackWin.txt");
+			
+			whiteWinBoard = new Board(fileDirectory + "PositionWhiteWin.txt");
+			
+			classicBoard = new Board(fileDirectory + "PlayingPosition.txt");
 		}
 		catch(Exception e) {
 			System.out.println(e.getMessage());
-			e.printStackTrace();
 		}
+    }
+	
+	@Test
+	void testGetTotalWeight() {
+		int depth = 1;
+		
+		int expResultStart = 0;
+		int expResultWhiteWin = 3;
+		int expResultBlackWin = Integer.MIN_VALUE - depth;
+		int expResultClassic = 0;
+		
+		assertEquals(expResultStart, startBoard.getTotalWeight(white, depth));
+		assertEquals(expResultWhiteWin, whiteWinBoard.getTotalWeight(white, depth));
+		assertEquals(expResultBlackWin, blackWinBoard.getTotalWeight(white, depth));
+		assertEquals(expResultClassic, classicBoard.getTotalWeight(white, depth));
+		
+	}
+
+	@Test
+	void testGetChildren() {
+		startBoard.getPossibleMoves();
+		assertNotNull("" , startBoard.getChildren());
+		
+		whiteWinBoard.getPossibleMoves();
+		assertNotNull("" , whiteWinBoard.getChildren());
+		
+		blackWinBoard.getPossibleMoves();
+		assertNull("" , blackWinBoard.getChildren());
+		
+		classicBoard.getPossibleMoves();
+		assertNotNull("" , classicBoard.getChildren());
+		
+	}
+
+	@Test
+	void testIsWin() {
+		assertTrue(startBoard.isWin().equals(GameResult.Continue));
+		assertTrue(whiteWinBoard.isWin().equals(GameResult.WhiteWin));
+		assertTrue(blackWinBoard.isWin().equals(GameResult.BlackWin));
+		assertTrue(classicBoard.isWin().equals(GameResult.Continue));
 	}
 	
-	public static void main(String[] argv) {
+	@Test
+	void testDeleteLastMove() {
+		String movePath = classicBoard.getPossibleMoves().get(0);
+		Board tmp = new Board(classicBoard);
+		
 		try {
-			long time1 = System.currentTimeMillis();
-			computerVsRandom();
-			System.out.println((double)(System.currentTimeMillis() - time1) / 1000);
+			classicBoard.move(movePath);
+			classicBoard.deleteLastMove();
 		}
-		catch(Exception e) {
-			System.out.println(e.getMessage());
+		catch(Exception e) {System.out.println(e.getMessage());}
+		
+		assertTrue(tmp.equals(classicBoard));
+	}
+	
+	@Test
+	void testMoveWithoutCheck() {
+		String correctMove = classicBoard.getPossibleMoves().get(0);
+		String uncorrectMove = new String("00:00");
+		
+		try {
+			assertFalse(classicBoard.moveWithoutCheck(correctMove).isEmpty());
+			assertTrue(classicBoard.moveWithoutCheck(uncorrectMove).isEmpty());
 		}
+		catch(Exception e) {}
+	}
+
+	@Test
+	void testMove() {
+		String correctMove = classicBoard.getPossibleMoves().get(0);
+		String uncorrectMove = new String("00:00");
+		
+		try {
+			assertFalse(classicBoard.move(correctMove).isEmpty());
+			assertTrue(classicBoard.move(uncorrectMove).isEmpty());
+		}
+		catch(Exception e) {}
+	}
+
+	@Test
+	void testCheckCorrectCoordinate() {
+		int horizontal, vertical;
+		
+		horizontal = 2;
+		vertical = 2;
+		assertTrue(Board.checkCorrectCoordinate(horizontal, vertical));
+		
+		horizontal = 1;
+		vertical = 2;
+		assertFalse(Board.checkCorrectCoordinate(horizontal, vertical));
+		
+		horizontal = -1;
+		vertical = 0;
+		assertFalse(Board.checkCorrectCoordinate(horizontal, vertical));
+		
+		horizontal = 9;
+		vertical = 9;
+		assertFalse(Board.checkCorrectCoordinate(horizontal, vertical));
+	}
+	
+	@Test
+	void testEquals() {
+		assertTrue(startBoard.equals(startBoard));
+		assertFalse(startBoard.equals(whiteWinBoard));
 	}
 }

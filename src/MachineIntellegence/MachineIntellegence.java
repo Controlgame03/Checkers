@@ -7,10 +7,11 @@ import logic.*;
 
 import java.util.*;
 import java.io.*;
+
 public class MachineIntellegence {
 	private static CheckerColor frendsColor;
 	private static CheckerColor enemyColor;
-	private static final int DEPTH = 5;
+	private static final int DEPTH = 10;
 	
 	public static String move(Board board){
 		frendsColor = board.getNextMoveColor();
