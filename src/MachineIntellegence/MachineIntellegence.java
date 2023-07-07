@@ -11,7 +11,7 @@ import java.io.*;
 public class MachineIntellegence {
 	private static CheckerColor frendsColor;
 	private static CheckerColor enemyColor;
-	private static final int DEPTH = 10;
+	private static final int DEPTH = 8;
 	
 	public static String move(Board board){
 		frendsColor = board.getNextMoveColor();

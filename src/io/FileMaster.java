@@ -66,7 +66,7 @@ public class FileMaster{
 	}
 	
 	private FileWriter createNewFile() throws IOException {
-		String fileDirectory = System.getProperty("user.dir") + "/src/games/";
+		String fileDirectory = "src/games/";
 		FileReader reader = new FileReader(fileDirectory + "info.txt");
 		int gameNumber;
 		StringBuffer number = new StringBuffer();
