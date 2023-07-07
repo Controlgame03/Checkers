@@ -176,7 +176,7 @@ public class Board {
 	
 	private void startNewGame() throws IOException{
 		fMaster = new FileMaster(player1, player2);
-		board = fMaster.loadBoardFromTextFile("src/logic/BasicCheckersPosition.txt");
+		board = fMaster.loadBoardFromTextFile("logic/BasicCheckersPosition.txt");
 	}
 	
 	private void startNewGame(String filename) throws IOException{
